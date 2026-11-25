@@ -167,6 +167,10 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-w
 .conds { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: var(--sunk); }
 .conds label { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 10px; align-items: center; font-size: 14px; color: var(--ink); font-weight: 400; }
 @media (max-width: 560px) { .conds label { grid-template-columns: minmax(0, 1fr); } }
+.head-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.feedback { margin-top: 20px; max-width: 720px; }
+.fb-intro { margin: -4px 0 14px; font-size: 13px; }
+.toast.err { color: var(--bad); }
 .foot { margin-top: 28px; color: var(--muted); font-size: 12px; }
 </style>
 
@@ -176,16 +180,33 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-w
       <h1>Guia de <span>Fechamento</span></h1>
       <p class="sub">Escolha a tarefa e o cenário. O guia mostra como responder cada pergunta do fechamento, quando escrever um texto e quando anexar imagens.</p>
     </div>
+    <div class="head-actions">
+    <button class="btn ghost" id="toFeedback" type="button">Dar feedback</button>
     <div class="modes" role="group" aria-label="Modo">
       <button id="mAnalyst" aria-pressed="true">Fechar tarefa</button>
       <button id="mQA" aria-pressed="false">Painel QA</button>
     </div>
+    </div>
   </header>
   <div id="app"></div>
+  <section class="panel feedback" id="feedback">
+    <h2>Feedback sobre o guia</h2>
+    <p class="note fb-intro">Achou um erro, tem uma sugestão ou ficou com dúvida? Escreva aqui. Só o responsável pelo projeto vê os comentários.</p>
+    <form class="form" id="fbForm">
+      <label class="full">Seu nome<input id="fbName" placeholder="Opcional" autocomplete="name"></label>
+      <label class="inline full"><input type="checkbox" id="fbAnon">Enviar anonimamente</label>
+      <label class="full">Comentário<textarea id="fbText" rows="4" required placeholder="Ex.: no cenário X, a resposta da pergunta Y deveria ser…"></textarea></label>
+      <div class="row full"><button class="btn" type="submit" id="fbSend">Enviar comentário</button><span class="toast" id="fbToast" aria-live="polite"></span></div>
+    </form>
+  </section>
   <p class="foot">Protótipo com dados fictícios. Alterações feitas aqui ficam salvas apenas neste navegador; na versão final, seriam compartilhadas com toda a equipe.</p>
 </div>
 
 <script>
+/* Feedback goes to a private Google Form owned by the project lead.
+   form: the form's ".../formResponse" URL; fields: the entry.NNN ids of each question. */
+const FEEDBACK = { form: "https://docs.google.com/forms/d/e/1FAIpQLSdhf2VnlPM9CvOlfjw2pvUSvNHpUbdGa-Yzs9N_glF26GkE7w/formResponse",
+  fields: { name: "entry.1730513594", comment: "entry.1942304648", task: "" } };
 const uid = () => Math.random().toString(36).slice(2, 9);
 const SN = ["Sim", "Não"];
 const ANY = null; // condition "Qualquer"
@@ -707,4 +728,28 @@ function setMode(m) {
 $("mAnalyst").onclick = () => setMode("analyst");
 $("mQA").onclick = () => setMode("qa");
 setMode("analyst");
+
+/* ------------------------- FEEDBACK ------------------------- */
+$("toFeedback").onclick = () => { $("feedback").scrollIntoView({ behavior: "smooth", block: "start" }); $("fbText").focus({ preventScroll: true }); };
+$("fbAnon").onchange = () => { $("fbName").disabled = $("fbAnon").checked; };
+$("fbForm").onsubmit = async e => {
+  e.preventDefault();
+  const text = $("fbText").value.trim(), toast = $("fbToast");
+  const say = (m, err) => { toast.textContent = m; toast.classList.toggle("err", !!err); };
+  if (!text) return say("Escreva um comentário antes de enviar.", true);
+  if (!FEEDBACK.form) return say("O envio de comentários ainda não foi configurado.", true);
+  const name = $("fbAnon").checked ? "Anônimo" : ($("fbName").value.trim() || "Anônimo");
+  const t = task(S.taskId);
+  const body = new URLSearchParams();
+  body.append(FEEDBACK.fields.name, name);
+  body.append(FEEDBACK.fields.comment, text);
+  if (FEEDBACK.fields.task) body.append(FEEDBACK.fields.task, t ? t.name : "");
+  $("fbSend").disabled = true; say("Enviando…");
+  try {
+    await fetch(FEEDBACK.form, { method: "POST", mode: "no-cors", body });
+    $("fbText").value = ""; say("Comentário enviado. Obrigado!");
+  } catch {
+    say("Não foi possível enviar. Verifique a conexão e tente de novo.", true);
+  } finally { $("fbSend").disabled = false; }
+};
 </script>
