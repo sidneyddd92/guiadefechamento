@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body { margin: 0; } [hidden] { display: none !important; }</style>
+<title>Guia de Fechamento</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: task list on the left; scenario → answer key for the closing questionnaire on the right. QA mode swaps in editors. */
+:root {
+  --bg: #f2f4f6; --surface: #ffffff; --sunk: #f7f9fa; --ink: #16202a; --muted: #5a6776; --line: #d7dde4;
+  --accent: #0e6d72; --accent-soft: #e1f0f0;
+  --ok: #1e7a4b; --ok-soft: #e3f3ea; --warn: #9a6200; --warn-soft: #fbf0dc; --bad: #b2271f; --bad-soft: #fbe6e4;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f141a; --surface: #171f28; --sunk: #131a22; --ink: #e5eaf0; --muted: #93a0b0; --line: #2a3541;
+  --accent: #56bcc1; --accent-soft: #163236;
+  --ok: #52c48d; --ok-soft: #15301f; --warn: #e2a83f; --warn-soft: #33270f; --bad: #f27a70; --bad-soft: #3a1a18;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #171f28; --sunk: #131a22; --ink: #e5eaf0; --muted: #93a0b0; --line: #2a3541;
+  --accent: #56bcc1; --accent-soft: #163236;
+  --ok: #52c48d; --ok-soft: #15301f; --warn: #e2a83f; --warn-soft: #33270f; --bad: #f27a70; --bad-soft: #3a1a18;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; margin-bottom: 20px; }
+h1 { font-size: 22px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+h1 span { color: var(--accent); }
+.sub { margin: 2px 0 0; color: var(--muted); max-width: 60ch; }
+.modes { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; background: var(--surface); }
+.modes button { font: inherit; font-weight: 500; padding: 8px 16px; border: 0; background: none; color: var(--ink); cursor: pointer; }
+.modes button + button { border-left: 1px solid var(--line); }
+.modes button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 12px;
+  display: flex; align-items: center; gap: 8px; }
+h2 .n { font-family: var(--mono); width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--surface); font-size: 11px; letter-spacing: 0; }
+h3 { font-size: 14px; margin: 20px 0 8px; }
+
+input, select, textarea { font: inherit; font-size: 14px; color: var(--ink); background: var(--sunk); border: 1px solid var(--line);
+  border-radius: 5px; padding: 7px 9px; width: 100%; min-width: 0; }
+textarea { resize: vertical; min-height: 70px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 500; color: var(--muted); min-width: 0; }
+
+.tasklist { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.tasklist button { width: 100%; text-align: left; font: inherit; background: none; border: 1px solid transparent; border-radius: 6px;
+  padding: 8px 10px; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
+.tasklist button:hover { background: var(--sunk); }
+.tasklist button[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.tasklist .count { font-family: var(--mono); font-size: 12px; color: var(--muted); font-weight: 400; }
+.empty { color: var(--muted); padding: 8px 2px; }
+
+.scenarios { display: flex; flex-direction: column; gap: 8px; }
+.scn { text-align: left; font: inherit; color: var(--ink); background: var(--sunk); border: 1px solid var(--line); border-radius: 7px;
+  padding: 11px 13px; cursor: pointer; display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; }
+.scn:hover { border-color: var(--accent); }
+.scn .radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); margin-top: 2px; }
+.scn[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.scn[aria-checked="true"] .radio { border-color: var(--accent); background: radial-gradient(var(--accent) 45%, transparent 50%); }
+.scn strong { display: block; font-weight: 600; }
+.scn small { color: var(--muted); }
+.badge { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--warn);
+  background: var(--warn-soft); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+.missing { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.link { font: inherit; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
+.placeholder-card { color: var(--muted); text-align: center; padding: 36px 18px; }
+
+.checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.checks label { flex-direction: row; align-items: flex-start; gap: 9px; font-size: 14px; font-weight: 400; color: var(--ink); cursor: pointer; }
+.checks input { width: 16px; height: 16px; margin-top: 3px; flex: none; accent-color: var(--accent); }
+
+/* replica of the closing questionnaire */
+.qform { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.qrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 11px 14px; }
+.qrow + .qrow, .qform .extra { border-top: 1px solid var(--line); }
+@media (max-width: 560px) { .qrow { grid-template-columns: minmax(0, 1fr); } }
+.qrow p { margin: 0; font-weight: 500; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opt { font-size: 13px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.opt.on { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.opt.on::before { content: "✓ "; }
+.extra { padding: 12px 14px; background: var(--sunk); }
+.extra > span { display: block; font-weight: 500; margin-bottom: 6px; }
+.blank { color: var(--muted); font-style: italic; }
+.closing { font-family: var(--mono); font-size: 12.5px; line-height: 1.65; background: var(--surface); border: 1px dashed var(--line); border-radius: 6px;
+  padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+.closing mark { background: var(--warn-soft); color: var(--warn); border-radius: 2px; padding: 0 2px; }
+.attach { display: flex; gap: 8px; align-items: flex-start; }
+.attach b { color: var(--accent); }
+.fills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 10px; }
+@media (max-width: 520px) { .fills { grid-template-columns: minmax(0, 1fr); } }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.btn { font: inherit; font-weight: 500; padding: 7px 14px; border-radius: 5px; border: 1px solid var(--accent); background: var(--accent); color: var(--surface); cursor: pointer; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.danger { background: transparent; border-color: var(--bad); color: var(--bad); }
+.toast { font-size: 13px; color: var(--ok); }
+.why { font-size: 13px; color: var(--muted); }
+.avoid { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.avoid li { background: var(--bad-soft); border-radius: 5px; padding: 7px 10px; display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 6px; }
+.avoid li::before { content: "✕"; color: var(--bad); font-weight: 700; font-size: 12px; margin-top: 2px; }
+.ready { margin-top: 18px; border-radius: 7px; padding: 11px 14px; border: 1px solid var(--line); background: var(--sunk); color: var(--muted); }
+.ready.go { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+
+/* QA */
+.qa-tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.qa-tree button { font: inherit; text-align: left; width: 100%; background: none; border: 0; border-radius: 5px; padding: 5px 8px; color: var(--ink); cursor: pointer; }
+.qa-tree button:hover { background: var(--sunk); }
+.qa-tree button[aria-current="true"] { background: var(--accent-soft); color: var(--accent); }
+.qa-tree .tname { font-weight: 700; }
+.qa-tree .tname small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+.qa-tree ul { list-style: none; margin: 2px 0 0 8px; padding: 0 0 0 8px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.form .full { grid-column: 1 / -1; }
+@media (max-width: 560px) { .form { grid-template-columns: minmax(0, 1fr); } }
+.inline { flex-direction: row !important; align-items: center; gap: 8px !important; font-size: 14px !important; color: var(--ink) !important; }
+.inline input { width: 16px; height: 16px; accent-color: var(--accent); }
+.tip { font-size: 12px; color: var(--muted); font-weight: 400; }
+.tip code { font-family: var(--mono); background: var(--sunk); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
+.answers { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+.answers label { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 10px; align-items: center; font-size: 14px; color: var(--ink); font-weight: 400; }
+@media (max-width: 560px) { .answers label { grid-template-columns: minmax(0, 1fr); } }
+.sugs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.sugs li { border: 1px solid var(--line); border-radius: 6px; padding: 9px 12px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+.sugs small { display: block; color: var(--muted); }
+.qrow.multi { grid-template-columns: minmax(0, 1fr); }
+.pickhint { color: var(--warn); font-weight: 600; font-size: 12px; }
+.opt.sq { border-radius: 4px; }
+.opt.sq.on::before { content: "☑ "; }
+.opt.pick { font: inherit; font-size: 13px; cursor: pointer; border: 1.5px dashed var(--warn); background: var(--warn-soft); color: var(--ink); border-radius: 4px; }
+.opt.pick.on { border-style: solid; border-color: var(--accent); background: var(--accent); color: var(--surface); }
+.multi-ed { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+.multi-ed strong { font-size: 14px; }
+.note { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+
+/* decision flow */
+.decide { display: flex; flex-direction: column; gap: 8px; }
+.dq { border: 1px solid var(--line); border-radius: 7px; padding: 10px 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; background: var(--sunk); }
+.dq p { margin: 0; font-weight: 500; flex: 1 1 260px; min-width: 0; }
+.dq .num { font-family: var(--mono); color: var(--muted); margin-right: 6px; font-weight: 400; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; max-width: 100%; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 13px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; text-align: left; }
+.seg button:hover { border-color: var(--accent); }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.result { margin-top: 12px; border-radius: 7px; padding: 11px 14px; border: 1px solid var(--accent); background: var(--accent-soft); }
+.result span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); font-weight: 600; }
+.result strong { font-size: 15px; }
+.result small { display: block; color: var(--muted); }
+.result.none { border-color: var(--warn); background: var(--warn-soft); }
+.result.none span { color: var(--warn); }
+.conds { display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); border-radius: 6px; padding: 12px; background: var(--sunk); }
+.conds label { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 10px; align-items: center; font-size: 14px; color: var(--ink); font-weight: 400; }
+@media (max-width: 560px) { .conds label { grid-template-columns: minmax(0, 1fr); } }
+.foot { margin-top: 28px; color: var(--muted); font-size: 12px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Guia de <span>Fechamento</span></h1>
+      <p class="sub">Escolha a tarefa e o cenário. O guia mostra como responder cada pergunta do fechamento, quando escrever um texto e quando anexar imagens.</p>
+    </div>
+    <div class="modes" role="group" aria-label="Modo">
+      <button id="mAnalyst" aria-pressed="true">Fechar tarefa</button>
+      <button id="mQA" aria-pressed="false">Painel QA</button>
+    </div>
+  </header>
+  <div id="app"></div>
+  <p class="foot">Protótipo com dados fictícios. Alterações feitas aqui ficam salvas apenas neste navegador; na versão final, seriam compartilhadas com toda a equipe.</p>
+</div>
+
+<script>
+const uid = () => Math.random().toString(36).slice(2, 9);
+const SN = ["Sim", "Não"];
+const ANY = null; // condition "Qualquer"
+
+/* All tasks: only KA stores are handled; Geral/CKA → nothing done, "aberta corretamente" = Não.
+   (Suspension: rare, so it is a checklist item + "caso especial" shortcut instead of a question.)
+   Suspension: Temporária → no evidence, never invalidate; Assinado → suspend, Não assinado → nothing (cannot be suspended). Definitiva rules (as aligned with the team):
+   Signed:   evidence not ok → nothing. Evidence ok: not active (iFood Não OR Google "Permanentemente fechada" Sim) OR duplicate also Signed → invalidate + suspend; active online + duplicate not Signed → nothing; otherwise → suspend only.
+   Não assinado: no evidence needed, never suspended. Not active online OR duplicate → invalidate; active online AND no duplicate → nothing. */
+const DEFAULT_DATA = { tasks: [
+  { id: "t1", name: "Suspensão de loja",
+    decisions: [
+      { text: "Qual é o tipo de suspensão?", options: ["Definitiva", "Temporária"] },
+      { text: "Qual é o status da loja?", options: ["Assinado", "Não assinado"] },
+      { text: "As evidências estão ok? (solicitação do cliente + e-mail de aprovação)", options: SN },
+      { text: "Loja existe e está ativa no iFood?", options: SN },
+      { text: "Loja aparece no Google como 'Permanentemente fechada'?", options: SN },
+      { text: "Já existe uma loja duplicada no nosso sistema?", options: SN },
+      { text: "A loja duplicada também é assinada?", options: SN } ],
+    questions: [
+      { text: "A tarefa foi aberta corretamente?", options: SN },
+      { text: "Você invalidou a loja?", options: SN },
+      { text: "Você suspendeu a loja?", options: SN } ],
+    textLabel: "Caso não tenha suspendido, indique o motivo:",
+    attachLabel: "Se necessário, utilize este campo para anexar imagens:",
+    scenarios: [
+      { id: "s0g", name: "Loja Geral (não é KA) → nada a fazer", unusual: true, shortcut: true,
+        desc: "Só trabalhamos com lojas KA. Não mexa na loja.",
+        when: [], answers: ["Não", "Não", "Não"],
+        text: "Nenhuma ação realizada: a loja é do tipo Geral. Não trabalhamos com lojas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da loja no sistema", "Não fiz nenhuma alteração na loja"],
+        avoid: ["Suspender ou invalidar a loja.", "Responder \"Sim\" em \"A tarefa foi aberta corretamente?\"."] },
+      { id: "s0c", name: "Loja CKA (não é KA) → nada a fazer", unusual: true, shortcut: true,
+        desc: "Só trabalhamos com lojas KA. Não mexa na loja.",
+        when: [], answers: ["Não", "Não", "Não"],
+        text: "Nenhuma ação realizada: a loja é do tipo CKA. Não trabalhamos com lojas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da loja no sistema", "Não fiz nenhuma alteração na loja"],
+        avoid: ["Suspender ou invalidar a loja.", "Responder \"Sim\" em \"A tarefa foi aberta corretamente?\"."] },
+      { id: "st", name: "Temporária · assinada → só suspender",
+        desc: "Não precisa de evidências. A loja é sempre suspensa e nunca invalidada.",
+        when: ["Temporária", "Assinado", ANY, ANY, ANY, ANY], answers: ["Sim", "Não", "Sim"],
+        text: "", attach: "",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei que a tarefa é de suspensão temporária"],
+        avoid: ["Invalidar a loja.", "Recusar a tarefa por falta de evidências: suspensão temporária não precisa delas.", "Não atualizar o status da loja para 'suspend' na nossa tracker."] },
+      { id: "stn", name: "Temporária · não assinada → nada a fazer",
+        desc: "Loja não assinada não pode ser suspensa. Suspensão temporária nunca invalida.",
+        when: ["Temporária", "Não assinado", ANY, ANY, ANY, ANY], answers: ["Sim", "Não", "Não"],
+        text: "Nenhuma ação realizada: a loja é não assinada e não pode ser suspensa. Suspensão temporária não prevê invalidação.", attach: "",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei que a loja é não assinada"],
+        avoid: ["Invalidar a loja no lugar da suspensão."] },
+      { id: "s1", name: "Assinado · evidências com problema",
+        desc: "Falta evidência ou ela não confere. Nada deve ser feito na loja.",
+        when: ["Definitiva", "Assinado", "Não", ANY, ANY, ANY, ANY], answers: ["Sim", "Não", "Não"],
+        text: "Nenhuma ação realizada: {{Problema nas evidências}}.", attach: "Print da evidência com problema, se houver.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Conferi a solicitação do cliente", "Conferi o e-mail de aprovação da liderança"],
+        avoid: ["Suspender ou invalidar a loja quando as evidências não estão ok."] },
+      { id: "s4i", name: "Assinado · não está ativa no iFood → invalidar e suspender",
+        desc: "Evidências ok e a loja não existe ou não está ativa no iFood.",
+        when: ["Definitiva", "Assinado", "Sim", "Não", ANY, ANY, ANY], answers: ["Sim", "Sim", "Sim"],
+        text: "", attach: "Print da página do iFood mostrando que a loja não existe ou não está ativa.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Evidências conferidas", "Confirmei que a loja não está ativa no iFood", "Tirei print da página do iFood para anexar"],
+        avoid: ["Suspender sem invalidar.", "Fechar a tarefa sem anexar o print do iFood.", "Não atualizar o status da loja para 'suspend' na nossa tracker."] },
+      { id: "s4g", name: "Assinado · fechada no Google → invalidar e suspender",
+        desc: "Evidências ok, a loja está no iFood, mas aparece no Google como 'Permanentemente fechada'.",
+        when: ["Definitiva", "Assinado", "Sim", "Sim", "Sim", ANY, ANY], answers: ["Sim", "Sim", "Sim"],
+        text: "", attach: "Print do Google mostrando a loja como 'Permanentemente fechada'.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Evidências conferidas", "Confirmei que a loja aparece no Google como 'Permanentemente fechada'", "Tirei print da página do Google para anexar"],
+        avoid: ["Suspender sem invalidar.", "Fechar a tarefa sem anexar o print do Google.", "Não atualizar o status da loja para 'suspend' na nossa tracker."] },
+      { id: "s2", name: "Assinado · ativa → só suspender",
+        desc: "Evidências ok, a loja está ativa no iFood, não está fechada no Google e não há duplicada no sistema.",
+        when: ["Definitiva", "Assinado", "Sim", "Sim", "Não", "Não", ANY], answers: ["Sim", "Não", "Sim"],
+        text: "Loja suspensa e não invalidada: a loja existe e está ativa no iFood.", attach: "Print da loja ativa no iFood.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Evidências conferidas", "Confirmei que a loja está ativa no iFood", "Confirmei que a loja não aparece no Google como 'Permanentemente fechada'"],
+        avoid: ["Invalidar a loja.", "Deixar o campo de texto em branco: explique por que não foi invalidada.", "Não atualizar o status da loja para 'suspend' na nossa tracker."] },
+      { id: "s2b", name: "Assinado · ativa, duplicada não assinada → nada a fazer",
+        desc: "Evidências ok, a loja está ativa (iFood e Google) e existe uma duplicada não assinada no sistema.",
+        when: ["Definitiva", "Assinado", "Sim", "Sim", "Não", "Sim", "Não"], answers: ["Sim", "Não", "Não"],
+        text: "Nenhuma ação realizada: a loja existe e está ativa no iFood.", attach: "Print da loja ativa no iFood.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Evidências conferidas", "Confirmei que a loja está ativa no iFood", "Confirmei que a loja não aparece no Google como 'Permanentemente fechada'", "Confirmei que a duplicada é não assinada"],
+        avoid: ["Suspender ou invalidar a loja."] },
+      { id: "s3b", name: "Assinado · duplicada também assinada → invalidar e suspender",
+        desc: "Evidências ok, a loja está ativa (iFood e Google), mas existe uma duplicada assinada no sistema.",
+        when: ["Definitiva", "Assinado", "Sim", "Sim", "Não", "Sim", "Sim"], answers: ["Sim", "Sim", "Sim"],
+        text: "Loja invalidada e suspensa: já existe uma loja duplicada também assinada no sistema ({{ID da loja duplicada}}).", attach: "",
+        checklist: ["Confirmei que a loja é do tipo KA", "Evidências conferidas", "Confirmei o ID da loja duplicada", "Confirmei que a duplicada também é assinada"],
+        avoid: ["Só suspender sem invalidar por a loja estar ativa.", "Não atualizar o status da loja para 'suspend' na nossa tracker."] },
+      { id: "s5", name: "Não assinado · duplicada → só invalidar",
+        desc: "Loja não assinada ativa (iFood e Google), mas com uma duplicada no sistema. Não precisa de evidências e não pode ser suspensa.",
+        when: ["Definitiva", "Não assinado", ANY, "Sim", "Não", "Sim", ANY], answers: ["Sim", "Sim", "Não"],
+        text: "Loja invalidada e não suspensa: loja não assinada não pode ser suspensa. Motivo da invalidação: já existe uma loja duplicada no sistema ({{ID da loja duplicada}}).", attach: "",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei o ID da loja duplicada"],
+        avoid: ["Suspender uma loja não assinada.", "Recusar a tarefa por falta de evidências: loja não assinada não precisa delas."] },
+      { id: "s6i", name: "Não assinado · não está ativa no iFood → só invalidar",
+        desc: "Loja não assinada que não existe ou não está ativa no iFood.",
+        when: ["Definitiva", "Não assinado", ANY, "Não", ANY, ANY, ANY], answers: ["Sim", "Sim", "Não"],
+        text: "Loja invalidada e não suspensa: loja não assinada não pode ser suspensa. Motivo da invalidação: a loja não está ativa no iFood.", attach: "Print da página do iFood mostrando que a loja não existe ou não está ativa.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei que a loja não está ativa no iFood", "Tirei print da página do iFood para anexar"],
+        avoid: ["Suspender uma loja não assinada.", "Fechar a tarefa sem anexar o print do iFood."] },
+      { id: "s6g", name: "Não assinado · fechada no Google → só invalidar",
+        desc: "Loja não assinada que está no iFood, mas aparece no Google como 'Permanentemente fechada'.",
+        when: ["Definitiva", "Não assinado", ANY, "Sim", "Sim", ANY, ANY], answers: ["Sim", "Sim", "Não"],
+        text: "Loja invalidada e não suspensa: loja não assinada não pode ser suspensa. Motivo da invalidação: a loja aparece no Google como 'Permanentemente fechada'.", attach: "Print do Google mostrando a loja como 'Permanentemente fechada'.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei que a loja aparece no Google como 'Permanentemente fechada'", "Tirei print da página do Google para anexar"],
+        avoid: ["Suspender uma loja não assinada.", "Fechar a tarefa sem anexar o print do Google."] },
+      { id: "s7", name: "Não assinado · ativa, sem duplicada → nada a fazer",
+        desc: "Loja não assinada ativa no iFood, não fechada no Google e sem duplicada no sistema.",
+        when: ["Definitiva", "Não assinado", ANY, "Sim", "Não", "Não", ANY], answers: ["Sim", "Não", "Não"],
+        text: "Nenhuma ação realizada: loja não assinada ativa no iFood e sem loja duplicada no sistema.", attach: "Print da loja ativa no iFood.",
+        checklist: ["Confirmei que a loja é do tipo KA", "Confirmei que a loja está ativa no iFood", "Confirmei que a loja não aparece no Google como 'Permanentemente fechada'", "Procurei duplicadas por nome, CEP e endereço"],
+        avoid: ["Invalidar a loja.", "Suspender uma loja não assinada."] }
+    ] },
+  { id: "t2", name: "RTBO - SignUp",
+    decisions: [
+      { text: "Qual é o tipo da loja?", options: ["KA", "Geral", "CKA"] },
+      { text: "O que você encontrou ao abrir a loja?", options: ["RTBO já concluído", "Tudo pronto, só falta o cardápio", "Completei algo e só falta o cardápio", "Completei algo e o RTBO ficou completo"] } ],
+    questions: [
+      { text: "A tarefa foi aberta corretamente?", options: SN },
+      { text: "Realizando o RTBO - selecione apenas o que você realizou na loja:", multi: true,
+        options: ["Info bancária", "Foto de fachada", "Forma de pagamento", "Menu (número de itens)", "Horário de funcionamento", "Menu dine-in",
+          "Nenhuma ação, RTBO já estava concluído", "Nenhuma das opções", "Loja ainda está como rascunho/verificando"] } ],
+    textLabel: "Caso não tenha concluído o RTBO, indique o motivo:",
+    attachLabel: "",
+    scenarios: [
+      { id: "r0g", name: "Loja Geral → nada a fazer",
+        desc: "Só trabalhamos com lojas KA. Não mexa na loja.",
+        when: ["Geral", ANY], answers: ["Não", ["Nenhuma das opções"]],
+        text: "Nenhuma ação realizada: a loja é do tipo Geral. Não trabalhamos com lojas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da loja no sistema", "Não fiz nenhuma alteração na loja"],
+        avoid: ["Fazer qualquer alteração na loja.", "Responder \"Sim\" em \"A tarefa foi aberta corretamente?\"."] },
+      { id: "r0c", name: "Loja CKA → nada a fazer",
+        desc: "Só trabalhamos com lojas KA. Não mexa na loja.",
+        when: ["CKA", ANY], answers: ["Não", ["Nenhuma das opções"]],
+        text: "Nenhuma ação realizada: a loja é do tipo CKA. Não trabalhamos com lojas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da loja no sistema", "Não fiz nenhuma alteração na loja"],
+        avoid: ["Fazer qualquer alteração na loja.", "Responder \"Sim\" em \"A tarefa foi aberta corretamente?\"."] },
+      { id: "r1", name: "KA · RTBO já concluído",
+        desc: "Tudo já estava feito, inclusive o cardápio.",
+        when: ["KA", "RTBO já concluído"], answers: ["Sim", ["Nenhuma ação, RTBO já estava concluído"]],
+        text: "", attach: "",
+        checklist: ["Info bancária conferida", "Horário de funcionamento conferido", "Foto de fachada conferida", "Cardápio cadastrado"],
+        avoid: ["Marcar outras opções além de \"Nenhuma ação, RTBO já estava concluído\"."] },
+      { id: "r2", name: "KA · Sign-Up concluído, só falta o cardápio",
+        desc: "Toda a sua parte já estava feita. O cardápio é da outra equipe.",
+        when: ["KA", "Tudo pronto, só falta o cardápio"], answers: ["Sim", ["Nenhuma das opções"]],
+        text: "Sign-Up já estava concluído. Pendente apenas o cardápio, de responsabilidade da equipe de Menu.", attach: "",
+        checklist: ["Info bancária conferida", "Horário de funcionamento conferido", "Foto de fachada conferida"],
+        avoid: ["Fazer o cardápio.", "Marcar \"Nenhuma ação, RTBO já estava concluído\": o RTBO ainda não está completo por causa do cardápio."] },
+      { id: "r3", name: "KA · completei o Sign-Up, só falta o cardápio",
+        desc: "Faltava algo da sua parte (info bancária, horário ou foto de fachada) e você adicionou.",
+        when: ["KA", "Completei algo e só falta o cardápio"], answers: ["Sim", []],
+        pick: [null, ["Info bancária", "Horário de funcionamento", "Foto de fachada"]],
+        text: "Sign-Up concluído após adicionar: {{marcados}}. Pendente apenas o cardápio, de responsabilidade da equipe de Menu.", attach: "",
+        checklist: ["Conferi as outras partes do Sign-Up e estão completas"],
+        avoid: ["Fazer o cardápio.", "Marcar opções que você não fez.", "Marcar \"Nenhuma das opções\" junto com o que você adicionou.", "Esquecer de atualizar o status da loja na planilha."] },
+      { id: "r4", name: "KA · completei o que faltava, RTBO completo",
+        desc: "Faltava algo da sua parte, você adicionou e o cardápio já estava feito.",
+        when: ["KA", "Completei algo e o RTBO ficou completo"], answers: ["Sim", []],
+        pick: [null, ["Info bancária", "Horário de funcionamento", "Foto de fachada"]],
+        text: "", attach: "",
+        checklist: ["Conferi as outras partes do Sign-Up e estão completas", "Cardápio cadastrado"],
+        avoid: ["Marcar opções que você não fez.", "Marcar \"Nenhuma ação, RTBO já estava concluído\": você fez alterações.", "Esquecer de atualizar o status da loja na planilha."] }
+    ] },
+  { id: "t3", name: "RTBO - Menu",
+    decisions: [
+      { text: "Qual é o tipo da marca?", options: ["KA", "Geral", "CKA"] },
+      { text: "A marca está nas planilhas?", options: SN },
+      { text: "A marca usa menu integrado?", options: SN },
+      { text: "Como estava o menu da loja?", options: ["Já estava completo", "Precisei fazer algo"] } ],
+    questions: [
+      { text: "Realizando RTBO - selecione apenas o que você realizou:", multi: true, options: ["Criação de menu na loja | Link Ifood", "Sincronização de menu na loja", "Inclusão de menu dine-in", "N/A | Menu já estava completo", "N/A | Marca usa menu integrado", "N/A | Marca não é KA", "N/A | Marca não está nas planilhas", "Nenhuma das alternativas"] } ],
+    textLabel: "Caso não tenha realizado, indique o motivo:",
+    attachLabel: "",
+    scenarios: [
+      { id: "m0g", name: "Marca Geral → não é KA",
+        desc: "Só trabalhamos com marcas KA. Não mexa no menu.",
+        when: ["Geral", ANY, ANY, ANY], answers: [["N/A | Marca não é KA"]],
+        text: "Nenhuma ação realizada: a marca é do tipo Geral. Não trabalhamos com marcas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da marca no sistema", "Não fiz nenhuma alteração no menu"],
+        avoid: ["Fazer qualquer alteração no menu.", "Marcar outra opção além de \"N/A | Marca não é KA\"."] },
+      { id: "m0c", name: "Marca CKA → não é KA",
+        desc: "Só trabalhamos com marcas KA. Não mexa no menu.",
+        when: ["CKA", ANY, ANY, ANY], answers: [["N/A | Marca não é KA"]],
+        text: "Nenhuma ação realizada: a marca é do tipo CKA. Não trabalhamos com marcas desse tipo (apenas KA).", attach: "",
+        checklist: ["Confirmei o tipo da marca no sistema", "Não fiz nenhuma alteração no menu"],
+        avoid: ["Fazer qualquer alteração no menu.", "Marcar outra opção além de \"N/A | Marca não é KA\"."] },
+      { id: "m1", name: "KA · marca não está nas planilhas",
+        desc: "A marca não aparece nas planilhas de menu.",
+        when: ["KA", "Não", ANY, ANY], answers: [["N/A | Marca não está nas planilhas"]],
+        text: "", attach: "",
+        checklist: ["Procurei a marca em todas as planilhas"],
+        avoid: ["Criar ou alterar o menu sem a marca estar nas planilhas."] },
+      { id: "m2", name: "KA · marca usa menu integrado",
+        desc: "A marca está nas planilhas e usa menu integrado.",
+        when: ["KA", "Sim", "Sim", ANY], answers: [["N/A | Marca usa menu integrado"]],
+        text: "", attach: "",
+        checklist: ["Confirmei que a marca usa menu integrado"],
+        avoid: ["Criar ou alterar o menu de uma marca integrada."] },
+      { id: "m3", name: "KA · menu já estava completo",
+        desc: "A marca está nas planilhas, não usa menu integrado e o menu da loja já estava completo.",
+        when: ["KA", "Sim", "Não", "Já estava completo"], answers: [["N/A | Menu já estava completo"]],
+        text: "", attach: "",
+        checklist: ["Conferi o menu da loja e está completo"],
+        avoid: ["Marcar opções de criação ou sincronização se nada foi feito."] },
+      { id: "m4", name: "KA · fiz o menu",
+        desc: "A marca está nas planilhas, não usa menu integrado e você fez algo no menu da loja.",
+        when: ["KA", "Sim", "Não", "Precisei fazer algo"], answers: [[]], pick: [["Criação de menu na loja | Link Ifood", "Sincronização de menu na loja", "Inclusão de menu dine-in"]],
+        text: "", attach: "",
+        checklist: ["Conferi o menu da loja depois das alterações"],
+        avoid: ["Marcar opções que você não fez.", "Marcar uma opção \"N/A\" junto com o que você fez.", "Esquecer de atualizar o status da loja na planilha."] }
+    ] }
+] };
+
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+let data = store.get("gf21_data") || structuredClone(DEFAULT_DATA);
+let sugs = store.get("gf21_sugs") || [{ id: uid(), task: "Suspensão de loja", text: "Loja assinada, evidências ok, mas a loja duplicada no sistema também está suspensa. Suspendo mesmo assim?", when: "Exemplo" }];
+const save = () => { store.set("gf21_data", data); store.set("gf21_sugs", sugs); };
+
+const S = { taskId: "t2", scnId: null, dec: { t1: ["Definitiva", "Assinado", "Sim", "Sim", "Não", "Sim", "Sim"], t2: ["KA", "Completei algo e só falta o cardápio"] }, search: "", fills: {}, checks: {}, picks: ["Foto de fachada"], short: {}, suggesting: false, qaTask: "t1", qaScn: "s4g" };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const task = id => data.tasks.find(t => t.id === id);
+const scn = (t, id) => t && t.scenarios.find(s => s.id === id);
+const AUTO = "marcados"; // filled automatically from the options the analyst ticks
+const fieldsOf = tpl => [...new Set([...(tpl || "").matchAll(/\{\{([^}]+)\}\}/g)].map(m => m[1].trim()))].filter(f => f !== AUTO);
+const joinList = a => a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " e " + a[a.length - 1];
+const pickOf = (s, i) => (s.pick && s.pick[i]) || null;
+function qHtml(q, i, s) {
+  if (!q.multi) return `<div class="qrow"><p>${esc(q.text)}</p><div class="opts">${q.options.map(o =>
+    `<span class="opt${s.answers[i] === o ? " on" : ""}">${esc(o)}</span>`).join("")}</div></div>`;
+  const fixed = s.answers[i] || [], pick = pickOf(s, i) || [];
+  return `<div class="qrow multi"><p>${esc(q.text)}</p>
+    ${pick.length ? `<small class="pickhint">Marque abaixo só o que você fez:</small>` : ""}
+    <div class="opts">${q.options.map(o => pick.includes(o)
+      ? `<button type="button" class="opt pick${S.picks.includes(o) ? " on" : ""}" data-pick="${esc(o)}" aria-pressed="${S.picks.includes(o)}">${esc(o)}</button>`
+      : `<span class="opt sq${fixed.includes(o) ? " on" : ""}">${esc(o)}</span>`).join("")}</div></div>`;
+}
+const cond = (s, i) => (s.when && s.when[i]) || ANY;
+
+/* Decision engine: show only the questions that still tell the remaining scenarios apart. */
+function decide(t) {
+  const a = S.dec[t.id] || (S.dec[t.id] = []);
+  const cands = t.scenarios.filter(s => !s.shortcut && t.decisions.every((_, i) => a[i] == null || cond(s, i) === ANY || cond(s, i) === a[i]));
+  const shown = [];
+  for (let i = 0; i < t.decisions.length; i++) {
+    if (a[i] != null) { shown.push(i); continue; }
+    if (cands.some(s => cond(s, i) !== ANY)) { shown.push(i); return { shown, scenario: null, pending: true }; }
+  }
+  return { shown, scenario: cands[0] || null, pending: false };
+}
+
+/* ------------------------- ANALYST ------------------------- */
+function renderAnalyst() {
+  const q = S.search.trim().toLowerCase();
+  const tasks = data.tasks.filter(t => !q || t.name.toLowerCase().includes(q) || t.scenarios.some(s => s.name.toLowerCase().includes(q)));
+  const t = task(S.taskId);
+  const flow = t && t.decisions.length ? decide(t) : null;
+  const short = flow && S.short[t.id] ? scn(t, S.short[t.id]) : null;
+  const shortcuts = flow ? t.scenarios.filter(x => x.shortcut) : [];
+  const s = short || (flow ? flow.scenario : scn(t, S.scnId));
+  if (flow) S.scnId = s ? s.id : null;
+
+  let step2 = "";
+  if (t && flow) {
+    step2 = `<section class="panel">
+      <h2><span class="n">2</span>Responda para encontrar o cenário</h2>
+      ${short ? `<div class="result"><span>Caso especial</span><strong>${esc(short.name)}</strong><small>${esc(short.desc)}</small></div>
+      <div class="row"><button class="link" id="restart">Voltar às perguntas</button></div>` : `
+      <div class="decide">${flow.shown.map((i, k) => { const d = t.decisions[i], cur = S.dec[t.id][i];
+        return `<div class="dq"><p><span class="num">${k + 1}.</span>${esc(d.text)}</p><div class="seg" role="group" aria-label="${esc(d.text)}">${d.options.map(o =>
+          `<button data-dec="${i}" data-v="${esc(o)}" aria-pressed="${cur === o}">${esc(o)}</button>`).join("")}</div></div>`; }).join("")}</div>
+      ${flow.pending ? "" : s ? `<div class="result"><span>Cenário</span><strong>${esc(s.name)}</strong><small>${esc(s.desc)}</small></div>`
+        : `<div class="result none"><span>Nenhum cenário encontrado</span><strong>Essa combinação não está no guia.</strong><small>Avise o QA antes de fechar a tarefa.</small></div>`}
+      <div class="row"><button class="link" id="restart">Recomeçar</button></div>`}
+      ${shortcuts.length && !short ? `<div class="missing">Caso especial: ${shortcuts.map(x =>
+        `<button class="link" data-short="${x.id}">${esc(x.name.split(" → ")[0])}</button>`).join(" · ")}</div>` : ""}
+      ${sugBlock()}
+    </section>`;
+  } else if (t) {
+    step2 = `<section class="panel">
+      <h2><span class="n">2</span>O que você encontrou?</h2>
+      <div class="scenarios" role="radiogroup" aria-label="Cenário">${t.scenarios.map(x =>
+        `<button class="scn" role="radio" data-scn="${x.id}" aria-checked="${x.id === S.scnId}"><span class="radio"></span>
+          <span><strong>${esc(x.name)}${x.unusual ? '<span class="badge">Incomum</span>' : ""}</strong><small>${esc(x.desc)}</small></span></button>`).join("")}</div>
+      ${sugBlock()}
+    </section>`;
+  }
+
+  $("app").innerHTML = `<div class="grid">
+    <section class="panel">
+      <h2><span class="n">1</span>Qual tarefa?</h2>
+      <input id="search" type="search" placeholder="Buscar tarefa ou cenário…" value="${esc(S.search)}" aria-label="Buscar tarefa">
+      <ul class="tasklist">${tasks.length ? tasks.map(x =>
+        `<li><button data-task="${x.id}" aria-current="${x.id === S.taskId}"><span>${esc(x.name)}</span><span class="count">${x.scenarios.length}</span></button></li>`).join("")
+        : `<li class="empty">Nenhuma tarefa encontrada.</li>`}</ul>
+    </section>
+    <div class="stack">
+      ${t ? step2 : `<section class="panel placeholder-card">Escolha uma tarefa à esquerda.</section>`}
+      ${t && s ? recipeHtml(t, s) : t && !flow ? `<section class="panel placeholder-card">Escolha o cenário que descreve o que você encontrou.</section>` : ""}
+    </div></div>`;
+
+  $("search").oninput = e => { S.search = e.target.value; const pos = e.target.selectionStart; renderAnalyst(); $("search").focus(); $("search").setSelectionRange(pos, pos); };
+  document.querySelectorAll("[data-task]").forEach(b => b.onclick = () => { S.taskId = b.dataset.task; S.scnId = null; S.checks = {}; S.picks = []; S.suggesting = false; renderAnalyst(); });
+  document.querySelectorAll("[data-scn]").forEach(b => b.onclick = () => { S.scnId = b.dataset.scn; S.checks = {}; S.picks = []; renderAnalyst(); });
+  document.querySelectorAll("[data-dec]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.dec, a = S.dec[t.id];
+    a[i] = b.dataset.v; a.length = i + 1; // changing an answer clears the ones after it
+    S.checks = {}; S.picks = []; renderAnalyst();
+  });
+  if ($("restart")) $("restart").onclick = () => { if (S.short[t.id]) S.short[t.id] = null; else S.dec[t.id] = []; S.checks = {}; S.picks = []; renderAnalyst(); };
+  document.querySelectorAll("[data-short]").forEach(b => b.onclick = () => { S.short[t.id] = b.dataset.short; S.checks = {}; S.picks = []; renderAnalyst(); });
+  if ($("openSug")) $("openSug").onclick = () => { S.suggesting = !S.suggesting; renderAnalyst(); if (S.suggesting) $("sugText").focus(); };
+  if ($("sugForm")) $("sugForm").onsubmit = e => {
+    e.preventDefault(); const txt = $("sugText").value.trim(); if (!txt) return;
+    sugs.unshift({ id: uid(), task: t.name, text: txt, when: new Date().toLocaleDateString("pt-BR") }); save();
+    S.suggesting = false; renderAnalyst(); $("sugToast").textContent = "Enviado. O QA vai ver isso no Painel QA.";
+  };
+  if (t && s) wireRecipe(s);
+}
+
+function sugBlock() {
+  return `<div class="missing">Nenhum cenário se encaixa? <button class="link" id="openSug">Avise o QA</button></div>
+    ${S.suggesting ? `<form id="sugForm" class="row" style="margin-top:10px">
+      <input id="sugText" placeholder="Descreva rapidamente o que você encontrou" aria-label="Descrição do caso" style="flex:1; min-width:200px">
+      <button class="btn" type="submit">Enviar ao QA</button></form>` : ""}
+    <div class="toast" id="sugToast" aria-live="polite"></div>`;
+}
+
+function recipeHtml(t, s) {
+  const fields = fieldsOf(s.text);
+  return `<section class="panel">
+    <h2><span class="n">3</span>Como fechar esta tarefa</h2>
+    ${s.checklist.length ? `<h3 style="margin-top:0">Antes de fechar, confirme</h3><ul class="checks">${s.checklist.map((c, i) =>
+      `<li><label><input type="checkbox" id="chk_${s.id}_${i}" data-chk="${i}"${S.checks[i] ? " checked" : ""}>${esc(c)}</label></li>`).join("")}</ul>` : ""}
+
+    <h3>Responda o formulário de fechamento assim</h3>
+    <div class="qform">
+      ${t.questions.map((q, i) => qHtml(q, i, s)).join("")}
+      <div class="extra"><span>${esc(t.textLabel)}</span>
+        ${s.text ? `${fields.length ? `<div class="fills">${fields.map((f, i) =>
+            `<label>${esc(f)}<input id="fill_${s.id}_${i}" data-fill="${esc(f)}" value="${esc(S.fills[f] || "")}"></label>`).join("")}</div>` : ""}
+          <pre class="closing" id="closing"></pre>
+          <div class="row"><button class="btn" id="copy">Copiar texto</button><span class="why" id="why"></span><span class="toast" id="toast" aria-live="polite"></span></div>`
+        : `<div class="blank">Deixe este campo em branco.</div>`}
+      </div>
+      ${t.attachLabel ? `<div class="extra"><span>${esc(t.attachLabel)}</span>
+        ${s.attach ? `<div class="attach"><b>Anexe:</b><span>${esc(s.attach)}</span></div>` : `<div class="blank">Não é necessário anexar imagens.</div>`}
+      </div>` : ""}
+    </div>
+    ${s.avoid.length ? `<h3>Evite</h3><ul class="avoid">${s.avoid.map(a => `<li><span>${esc(a)}</span></li>`).join("")}</ul>` : ""}
+    <div class="ready" id="ready"></div>
+  </section>`;
+}
+
+function wireRecipe(s) {
+  const refresh = () => {
+    const fields = fieldsOf(s.text);
+    const missingF = fields.filter(f => !(S.fills[f] || "").trim()).length;
+    const missingC = s.checklist.filter((_, i) => !S.checks[i]).length;
+    const missingP = (s.pick || []).some(Boolean) && !S.picks.length;
+    if (s.text) {
+      $("closing").innerHTML = esc(s.text).replace(/\{\{([^}]+)\}\}/g, (m, k) => {
+        k = k.trim();
+        if (k === AUTO) return S.picks.length ? esc(joinList(S.picks)) : `<mark>[marque o que você adicionou]</mark>`;
+        const v = (S.fills[k] || "").trim(); return v ? esc(v) : `<mark>[${esc(k)}]</mark>`; });
+      $("copy").disabled = !!(missingF || missingP);
+      $("why").textContent = missingP ? "Marque o que você adicionou para liberar a cópia." : missingF ? `Preencha ${missingF} ${missingF > 1 ? "campos" : "campo"} para liberar a cópia.` : "";
+    }
+    const parts = [missingC && `confirme ${missingC} ${missingC > 1 ? "itens" : "item"} da lista`, missingP && "marque o que você adicionou", missingF && `preencha ${missingF} ${missingF > 1 ? "campos" : "campo"} do texto`].filter(Boolean);
+    $("ready").className = "ready" + (parts.length ? "" : " go");
+    $("ready").textContent = parts.length ? `Antes de fechar: ${parts.join(" e ")}.` : "Tudo certo. Preencha o formulário como mostrado acima e feche a tarefa.";
+  };
+  document.querySelectorAll("[data-chk]").forEach(c => c.onchange = () => { S.checks[c.dataset.chk] = c.checked; refresh(); });
+  document.querySelectorAll("[data-fill]").forEach(i => i.oninput = () => { S.fills[i.dataset.fill] = i.value; refresh(); });
+  document.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+    const o = b.dataset.pick;
+    S.picks = S.picks.includes(o) ? S.picks.filter(x => x !== o) : [...S.picks, o];
+    b.classList.toggle("on"); b.setAttribute("aria-pressed", S.picks.includes(o)); refresh();
+  });
+  if ($("copy")) $("copy").onclick = () => {
+    const text = s.text.replace(/\{\{([^}]+)\}\}/g, (m, k) => k.trim() === AUTO ? joinList(S.picks) : S.fills[k.trim()]);
+    const done = m => { $("toast").textContent = m; setTimeout(() => $("toast").textContent = "", 2500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($("closing")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); done("Texto selecionado. Use Ctrl+C."); };
+    try { navigator.clipboard.writeText(text).then(() => done("Copiado"), fallback); } catch { fallback(); }
+  };
+  refresh();
+}
+
+/* ------------------------- QA ------------------------- */
+function renderQA() {
+  const t = task(S.qaTask);
+  let editor;
+  if (S.qaTask === "__new") editor = taskEditorHtml(null);
+  else if (S.qaScn === "__task") editor = taskEditorHtml(t);
+  else if (S.qaScn) editor = scnEditorHtml(t, S.qaScn === "new" ? null : scn(t, S.qaScn));
+  else editor = `<div class="placeholder-card">Escolha uma tarefa ou um cenário para editar.</div>`;
+
+  $("app").innerHTML = `<div class="grid">
+    <div class="stack">
+      <section class="panel">
+        <h2>Tarefas e cenários</h2>
+        <ul class="qa-tree">${data.tasks.map(x => `<li>
+          <button class="tname" data-edit="${x.id}|__task" aria-current="${x.id === S.qaTask && S.qaScn === "__task"}">${esc(x.name)}<small>Editar perguntas</small></button>
+          <ul>${x.scenarios.map(y => `<li><button data-edit="${x.id}|${y.id}" aria-current="${x.id === S.qaTask && y.id === S.qaScn}">${esc(y.name)}${y.unusual ? '<span class="badge">Incomum</span>' : ""}</button></li>`).join("")}
+          <li><button data-edit="${x.id}|new" aria-current="${x.id === S.qaTask && S.qaScn === "new"}" style="color:var(--accent)">+ Novo cenário</button></li></ul>
+        </li>`).join("")}</ul>
+        <div class="row" style="margin-top:14px"><button class="btn ghost" id="newTask">+ Nova tarefa</button></div>
+      </section>
+      <section class="panel">
+        <h2>Casos enviados por analistas</h2>
+        ${sugs.length ? `<ul class="sugs">${sugs.map(g => `<li><span>${esc(g.text)}<small>${esc(g.task)} · ${esc(g.when)}</small></span>
+          <button class="link" data-dis="${g.id}">Resolvido</button></li>`).join("")}</ul>` : `<p class="empty">Nenhum caso pendente.</p>`}
+      </section>
+    </div>
+    <section class="panel">${editor}</section>
+  </div>`;
+
+  document.querySelectorAll("[data-edit]").forEach(b => b.onclick = () => { const [ti, si] = b.dataset.edit.split("|"); S.qaTask = ti; S.qaScn = si; renderQA(); });
+  document.querySelectorAll("[data-dis]").forEach(b => b.onclick = () => { sugs = sugs.filter(g => g.id !== b.dataset.dis); save(); renderQA(); });
+  $("newTask").onclick = () => { S.qaTask = "__new"; S.qaScn = "__task"; renderQA(); $("f_tname").focus(); };
+  if ($("taskForm")) wireTaskEditor(t);
+  if ($("scnForm")) wireScnEditor(t, S.qaScn === "new" ? null : scn(t, S.qaScn));
+  if ($("restore")) $("restore").onclick = () => { data = structuredClone(DEFAULT_DATA); save(); S.dec = {}; S.qaTask = "t1"; S.qaScn = "s4g"; renderQA(); };
+}
+
+const questionsToText = qs => qs.map(q => `${q.text} | ${q.options.join(" / ")}${q.multi ? " | várias" : ""}`).join("\n");
+const textToQuestions = txt => txt.split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+  const parts = l.split("|"); const q = parts.shift();
+  const multi = parts.length > 1 && /^\s*v[aá]rias\s*$/i.test(parts[parts.length - 1]); if (multi) parts.pop();
+  const options = (parts.length ? parts.join("|") : "Sim / Não").split(/\s\/\s/).map(x => x.trim()).filter(Boolean);
+  return multi ? { text: q.trim(), options, multi: true } : { text: q.trim(), options };
+});
+
+function taskEditorHtml(t) {
+  const v = t || { name: "", decisions: [], questions: [{ text: "A tarefa foi aberta corretamente?", options: SN }], textLabel: "Observações:", attachLabel: "Se necessário, utilize este campo para anexar imagens:" };
+  return `<h2>${t ? "Perguntas da tarefa" : "Nova tarefa"}</h2>
+  <form class="form" id="taskForm">
+    <label class="full">Nome da tarefa<input id="f_tname" value="${esc(v.name)}" required></label>
+    <label class="full">Perguntas de decisão (opcional) <span class="tip">O que o analista verifica para descobrir o cenário. Uma por linha: <code>Pergunta | Opção / Opção</code>. Se ficar vazio, o analista escolhe o cenário numa lista.</span>
+      <textarea id="f_dec" rows="4">${esc(questionsToText(v.decisions))}</textarea></label>
+    <label class="full">Perguntas do formulário de fechamento <span class="tip">Exatamente como aparecem no sistema. Uma por linha: <code>Pergunta | Opção / Opção</code>. Sem opções, usa Sim / Não. Para caixas de seleção (várias respostas), termine com <code>| várias</code>.</span>
+      <textarea id="f_qs" rows="4">${esc(questionsToText(v.questions))}</textarea></label>
+    <label class="full">Rótulo do campo de texto<input id="f_tl" value="${esc(v.textLabel)}"></label>
+    <label class="full">Rótulo do campo de anexo<input id="f_al" value="${esc(v.attachLabel)}"></label>
+    <div class="row full"><button class="btn" type="submit">Salvar</button><span class="toast" id="edToast" aria-live="polite"></span></div>
+  </form>
+  <div class="row" style="margin-top:16px"><button class="link" id="restore">Restaurar exemplos originais</button></div>`;
+}
+
+function wireTaskEditor(t) {
+  $("taskForm").onsubmit = e => {
+    e.preventDefault();
+    const obj = { name: $("f_tname").value.trim(), decisions: textToQuestions($("f_dec").value), questions: textToQuestions($("f_qs").value),
+      textLabel: $("f_tl").value.trim(), attachLabel: $("f_al").value.trim() };
+    if (t) Object.assign(t, obj); else { t = { id: uid(), scenarios: [], ...obj }; data.tasks.push(t); }
+    save(); S.dec[t.id] = []; S.qaTask = t.id; S.qaScn = "__task"; renderQA(); $("edToast").textContent = "Salvo. Agora adicione os cenários desta tarefa.";
+  };
+}
+
+function scnEditorHtml(t, s) {
+  const v = s || { name: "", desc: "", when: [], answers: [], text: "", attach: "", checklist: [], avoid: [], unusual: false };
+  return `<h2>${s ? "Editar cenário" : "Novo cenário"} · ${esc(t.name)}</h2>
+  <form class="form" id="scnForm">
+    <label class="full">Nome do cenário (como o analista vai reconhecer)<input id="f_name" value="${esc(v.name)}" required></label>
+    <label class="full">Descrição curta<input id="f_desc" value="${esc(v.desc)}" placeholder="Quando este cenário se aplica"></label>
+    ${t.decisions.length ? `<div class="full"><label style="margin-bottom:6px">Quando usar este cenário <span class="tip">"Qualquer" quando a resposta não importa.</span></label>
+      <div class="conds">${t.decisions.map((d, i) => `<label>${esc(d.text)}<select id="f_w${i}"><option value="">Qualquer</option>${d.options.map(o =>
+        `<option${cond(v, i) === o ? " selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`).join("")}</div></div>` : ""}
+    <div class="full"><label style="margin-bottom:6px">Resposta correta para cada pergunta do formulário</label>
+      <div class="answers">${t.questions.map((q, i) => q.multi
+        ? `<div class="multi-ed"><strong>${esc(q.text)}</strong>${q.options.map((o, j) => { const st = (pickOf(v, i) || []).includes(o) ? "pick" : (v.answers[i] || []).includes(o) ? "on" : "";
+            return `<label>${esc(o)}<select id="f_a${i}_${j}"><option value="">Não marcar</option><option value="on"${st === "on" ? " selected" : ""}>Marcar</option><option value="pick"${st === "pick" ? " selected" : ""}>Analista marca o que fez</option></select></label>`; }).join("")}</div>`
+        : `<label>${esc(q.text)}<select id="f_a${i}">${q.options.map(o =>
+        `<option${v.answers[i] === o ? " selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`).join("")}</div>
+      <p class="note">Use {{marcados}} no texto para incluir automaticamente o que o analista marcou.</p></div>
+    <label class="full">${esc(t.textLabel)} <span class="tip">Deixe vazio se o campo deve ficar em branco. Use <code>{{Nome do campo}}</code> para o que o analista precisa completar.</span>
+      <textarea id="f_text" rows="3">${esc(v.text)}</textarea></label>
+    <label class="full">Anexo <span class="tip">O que anexar. Deixe vazio se não for necessário.</span><input id="f_attach" value="${esc(v.attach)}"></label>
+    <label class="full">O que conferir antes de fechar <span class="tip">Um item por linha.</span><textarea id="f_check" rows="3">${esc(v.checklist.join("\n"))}</textarea></label>
+    <label class="full">Erros comuns a evitar <span class="tip">Um por linha.</span><textarea id="f_avoid" rows="3">${esc(v.avoid.join("\n"))}</textarea></label>
+    <label class="inline full"><input type="checkbox" id="f_unusual"${v.unusual ? " checked" : ""}>Marcar como situação incomum</label>
+    ${t.decisions.length ? `<label class="inline full"><input type="checkbox" id="f_short"${v.shortcut ? " checked" : ""}>Caso especial: aparece como atalho abaixo das perguntas (as condições acima são ignoradas)</label>` : ""}
+    <div class="row full">
+      <button class="btn" type="submit">Salvar</button>
+      ${s ? `<button class="btn ghost" type="button" id="preview">Ver como analista</button><button class="btn danger" type="button" id="del">Excluir cenário</button>` : ""}
+      <span class="toast" id="edToast" aria-live="polite"></span>
+    </div>
+  </form>`;
+}
+
+function wireScnEditor(t, s) {
+  const lines = id => $(id).value.split("\n").map(x => x.trim()).filter(Boolean);
+  $("scnForm").onsubmit = e => {
+    e.preventDefault();
+    const obj = { id: s ? s.id : uid(), name: $("f_name").value.trim(), desc: $("f_desc").value.trim(),
+      when: t.decisions.map((_, i) => $("f_w" + i).value || ANY),
+      answers: t.questions.map((q, i) => q.multi ? q.options.filter((_, j) => $(`f_a${i}_${j}`).value === "on") : $("f_a" + i).value),
+      pick: t.questions.map((q, i) => q.multi ? q.options.filter((_, j) => $(`f_a${i}_${j}`).value === "pick") : null), text: $("f_text").value.trim(), attach: $("f_attach").value.trim(),
+      checklist: lines("f_check"), avoid: lines("f_avoid"), unusual: $("f_unusual").checked, shortcut: !!($("f_short") && $("f_short").checked) };
+    if (s) Object.assign(s, obj); else t.scenarios.push(obj);
+    save(); S.qaScn = obj.id; renderQA(); $("edToast").textContent = "Salvo. Já aparece para os analistas.";
+  };
+  if ($("del")) $("del").onclick = () => { t.scenarios = t.scenarios.filter(x => x.id !== s.id); save(); S.qaScn = "__task"; renderQA(); };
+  if ($("preview")) $("preview").onclick = () => {
+    S.taskId = t.id; S.scnId = s.id; S.checks = {}; S.picks = [];
+    if (t.decisions.length) { S.short[t.id] = s.shortcut ? s.id : null; if (!s.shortcut) S.dec[t.id] = t.decisions.map((d, i) => cond(s, i)); }
+    setMode("analyst");
+  };
+}
+
+/* ------------------------- MODE ------------------------- */
+function setMode(m) {
+  $("mAnalyst").setAttribute("aria-pressed", m === "analyst"); $("mQA").setAttribute("aria-pressed", m === "qa");
+  m === "analyst" ? renderAnalyst() : renderQA();
+}
+$("mAnalyst").onclick = () => setMode("analyst");
+$("mQA").onclick = () => setMode("qa");
+setMode("analyst");
+</script>
